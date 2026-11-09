@@ -47,6 +47,32 @@ body:has(#editor:not(.hidden)){overflow:hidden}
 @media(max-height:650px){#editor .preview-wrap{height:31dvh}#editor .preview-tip{display:none}#editor .navigator{margin:3px auto}#editor .editor-tab{padding:8px 5px}}
 @media(min-width:850px){#editor .preview-wrap{height:43dvh}}
 
+
+/* v5: fit the complete source photo inside the fixed preview stage */
+#editor .preview-wrap{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:clamp(205px,38dvh,410px);
+  min-height:0;
+  overflow:hidden;
+  background:#ded7ce;
+}
+#editor .preview-wrap canvas{
+  display:block;
+  flex:0 0 auto;
+  width:auto;
+  height:auto;
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+}
+@media(max-height:690px){
+  #editor .preview-wrap{height:35dvh;}
+  #editor .preview-tip{display:none}
+}
+#editor .editor-controls{min-height:0;}
+
 </style>
 </head>
 <body>
@@ -120,6 +146,8 @@ function setupEditorTabs(){
  const header=document.querySelector('header');
  const setTop=()=>editor.style.setProperty('--editor-top',Math.round(header.getBoundingClientRect().bottom)+'px');
  setTop();window.addEventListener('resize',setTop);
+ window.addEventListener('resize',fitPreviewCanvas);
+ if(typeof ResizeObserver!=='undefined')new ResizeObserver(fitPreviewCanvas).observe($('preview').parentElement);
 }
 function selectEditorTab(id){
  document.querySelectorAll('#editor .editor-tab').forEach(b=>b.setAttribute('aria-selected',String(b.id==='tab-'+id)));
@@ -130,7 +158,7 @@ function selectEditorTab(id){
 function controlsFromState(){let s=state(current);for(let id of ['bright','contrast','warm','saturation','highlights','shadows','vibrance','fade','vignette','sharpen','portrait']){$(id).value=s[id]??0;$(id+'Val').textContent=Number(s[id]??0)>0?'+'+(s[id]??0):(s[id]??0)}$('caption').value=s.caption;document.querySelectorAll('[data-caption-style]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.captionStyle===s.captionStyle)));$('fontSize').value=s.fontSize;$('fontSizeVal').textContent=s.fontSize+'%';$('textBold').checked=!!s.bold;document.querySelectorAll('[data-font]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.font===s.font)));document.querySelectorAll('[data-color]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.color===s.color)))}
 async function loadCaptionFont(s){try{const family=s.captionStyle==='classic'?'Caveat':(s.font||'Gowun Batang');const weight=s.captionStyle==='classic'?'400':(s.bold?'700':'400');await document.fonts.load(weight+' 30px "'+family+'"',s.caption||'우리의 순간')}catch{}}
 
-async function openPhoto(it){let ticket=++rev;current=it;img=null;screen('editor');$('photoName').textContent=it.name+(it.print?' · 인쇄용':'');$('position').textContent=it.print?'인쇄용 사진':(Number(it.id)+1)+' / 100';controlsFromState();$('favorite').textContent=state(it).fav?'♥ 찜했어요':'♡ 찜하기';$('favorite').disabled=false;$('make').disabled=true;let c=$('preview');c.width=600;c.height=900;c.getContext('2d').fillStyle='#e4ddd3';c.getContext('2d').fillRect(0,0,600,900);try{if(loadedPack!==it.pack){const prefix='p'+String(it.pack).padStart(2,'0');const pieces=await Promise.all(Array.from({length:manifest.parts[it.pack]},(_,j)=>getBinary('assets/'+prefix+'.'+String(j).padStart(2,'0')+'.enc')));const n=pieces.reduce((sum,b)=>sum+b.byteLength,0),cipher=new Uint8Array(n);let at=0;for(const part of pieces){cipher.set(new Uint8Array(part),at);at+=part.byteLength}packBytes=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:cipher.slice(0,12)},cryptoKey,cipher.slice(12)));loadedPack=it.pack}let bytes=packBytes.slice(it.offset,it.offset+it.length);let photo=await imageFromBlob(bytes);if(ticket!==rev)return;img=photo;let size=Math.min(1,700/photo.width);c.width=Math.round(photo.width*size);c.height=Math.round(photo.height*size);$('make').disabled=false;renderPreview();loadCaptionFont(state(it)).then(()=>{if(ticket===rev)queueRender()})}catch(e){if(ticket===rev){toast('사진 열기 실패');alert(e.message);screen('album')}}}
+async function openPhoto(it){let ticket=++rev;current=it;img=null;screen('editor');$('photoName').textContent=it.name+(it.print?' · 인쇄용':'');$('position').textContent=it.print?'인쇄용 사진':(Number(it.id)+1)+' / 100';controlsFromState();$('favorite').textContent=state(it).fav?'♥ 찜했어요':'♡ 찜하기';$('favorite').disabled=false;$('make').disabled=true;let c=$('preview');c.width=600;c.height=900;fitPreviewCanvas();c.getContext('2d').fillStyle='#e4ddd3';c.getContext('2d').fillRect(0,0,600,900);try{if(loadedPack!==it.pack){const prefix='p'+String(it.pack).padStart(2,'0');const pieces=await Promise.all(Array.from({length:manifest.parts[it.pack]},(_,j)=>getBinary('assets/'+prefix+'.'+String(j).padStart(2,'0')+'.enc')));const n=pieces.reduce((sum,b)=>sum+b.byteLength,0),cipher=new Uint8Array(n);let at=0;for(const part of pieces){cipher.set(new Uint8Array(part),at);at+=part.byteLength}packBytes=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:cipher.slice(0,12)},cryptoKey,cipher.slice(12)));loadedPack=it.pack}let bytes=packBytes.slice(it.offset,it.offset+it.length);let photo=await imageFromBlob(bytes);if(ticket!==rev)return;img=photo;let size=Math.min(1,700/photo.width);c.width=Math.round(photo.width*size);c.height=Math.round(photo.height*size);$('make').disabled=false;renderPreview();loadCaptionFont(state(it)).then(()=>{if(ticket===rev)queueRender()})}catch(e){if(ticket===rev){toast('사진 열기 실패');alert(e.message);screen('album')}}}
 function captionLines(ctx,text,limit){
  const lines=[];
  for(const raw of String(text).replace(/\r\n?/g,'\n').split('\n')){
@@ -245,7 +273,16 @@ if(settings.caption.trim()){
  ctx.restore();
 }}
 
-function renderPreview(){if(!img||!current)return;let c=$('preview');draw(c,img,state(current))}
+function fitPreviewCanvas(){
+ const canvas=$('preview'),frame=canvas.parentElement;
+ if(!canvas.width||!canvas.height||!frame)return;
+ const availableWidth=frame.clientWidth-4,availableHeight=frame.clientHeight-4;
+ if(availableWidth<=0||availableHeight<=0)return;
+ const scale=Math.min(availableWidth/canvas.width,availableHeight/canvas.height,1);
+ canvas.style.width=Math.max(1,Math.floor(canvas.width*scale))+'px';
+ canvas.style.height=Math.max(1,Math.floor(canvas.height*scale))+'px';
+}
+function renderPreview(){if(!img||!current)return;let c=$('preview');fitPreviewCanvas();draw(c,img,state(current))}
 function queueRender(){if(renderQueued)return;renderQueued=true;requestAnimationFrame(()=>{renderQueued=false;renderPreview()})}
 for(let id of ['bright','contrast','warm','saturation','highlights','shadows','vibrance','fade','vignette','sharpen','portrait'])$(id).oninput=()=>{if(!current)return;state(current)[id]=Number($(id).value);$(id+'Val').textContent=Number($(id).value)>0?'+'+$(id).value:$(id).value;persist();queueRender()};
 $('caption').oninput=()=>{if(!current)return;state(current).caption=$('caption').value;persist();queueRender()};
