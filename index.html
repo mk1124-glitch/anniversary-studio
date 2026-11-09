@@ -25,6 +25,28 @@
 .caption-warning{margin:0 0 13px;font-size:12px;line-height:1.55;color:var(--muted)}
 .save-steps{background:#fff;border:1px solid var(--line);border-radius:16px;padding:17px 18px;text-align:left;margin:16px 0 12px}.save-steps h3{font-size:15px;margin:0 0 12px}.save-steps p{display:flex;gap:9px;align-items:flex-start;margin:10px 0;font-size:13px;line-height:1.5}.save-steps .step{width:23px;height:23px;flex:0 0 23px;display:grid;place-items:center;background:#f0e3dc;color:var(--accent);border-radius:50%;font-size:12px;font-weight:700}.secondary-help{font-size:12px;color:var(--muted);margin:13px 0 0;line-height:1.65}.result .result-guide{margin-top:9px}#fallback{line-height:1.65}
 @media(max-width:380px){.font-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.font-option{min-height:71px}}
+
+/* Mobile editing workspace: preview remains visible while controls scroll */
+body:has(#editor:not(.hidden)){overflow:hidden}
+#editor.editor:not(.hidden){position:fixed;top:var(--editor-top,54px);bottom:0;left:0;right:0;z-index:19;max-width:none;width:100%;display:flex;flex-direction:column;background:var(--bg);padding:8px max(12px,env(safe-area-inset-right)) 0 max(12px,env(safe-area-inset-left));overflow:hidden}
+#editor .editor-head{flex:0 0 auto;max-width:620px;width:100%;margin:0 auto 5px}
+#editor .preview-wrap{flex:0 0 auto;height:clamp(190px,39dvh,420px);min-height:0;max-width:620px;width:100%;margin:0 auto;border-radius:13px}
+#editor .preview-wrap canvas{max-height:100%;max-width:100%;width:auto;height:auto;object-fit:contain}
+#editor .preview-tip{flex:0 0 auto;margin:5px auto 0;font-size:11px}
+#editor .navigator{flex:0 0 auto;max-width:620px;width:100%;margin:5px auto 7px}
+#editor .navigator button{padding:7px 11px}
+#editor .editor-controls{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;max-width:620px;width:100%;margin:0 auto;padding:0 1px 18px;scrollbar-width:thin}
+#editor .editor-tabs{position:sticky;top:0;z-index:4;display:grid;grid-template-columns:repeat(3,1fr);gap:5px;background:var(--bg);padding:7px 0 9px;border-bottom:1px solid var(--line)}
+#editor .editor-tab{border:1px solid var(--line);background:white;border-radius:11px;padding:11px 6px;color:var(--muted);font-size:14px;font-weight:650}
+#editor .editor-tab[aria-selected=true]{background:var(--accent);color:#fff;border-color:var(--accent)}
+#editor .editor-tab-panel{display:none}
+#editor .editor-tab-panel.active{display:block}
+#editor .editor-tab-panel .panel{margin:10px 0}
+#editor>.bottom{position:relative;flex:0 0 auto;bottom:auto;left:auto;right:auto;z-index:5;width:100%;max-width:620px;margin:0 auto;padding:9px 0 calc(9px + env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid var(--line);backdrop-filter:none}
+#editor:has(#caption:focus) .preview-wrap{height:clamp(125px,24dvh,240px)}
+@media(max-height:650px){#editor .preview-wrap{height:31dvh}#editor .preview-tip{display:none}#editor .navigator{margin:3px auto}#editor .editor-tab{padding:8px 5px}}
+@media(min-width:850px){#editor .preview-wrap{height:43dvh}}
+
 </style>
 </head>
 <body>
@@ -77,6 +99,34 @@ function list(){return manifest.items.filter(x=>mode==='all'?!x.print:mode==='se
 function mark(item){const s=state(item);s.fav=!s.fav;persist();summary();return true}
 function filter(v){mode=v;document.querySelectorAll('[data-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.filter===v)));renderGallery()}
 function renderGallery(){if(!manifest||!atlas)return;const grid=$('grid');grid.replaceChildren();const shown=list();$('empty').classList.toggle('hidden',shown.length>0);for(const it of shown){const tile=document.createElement('div');tile.className='tile';const open=document.createElement('button');open.type='button';open.className='tile-photo';open.setAttribute('aria-label',it.name+' 편집하기');const c=document.createElement('canvas');c.width=manifest.thumb.width;c.height=manifest.thumb.height;const x=Number(it.id)%manifest.thumb.cols,y=Math.floor(Number(it.id)/manifest.thumb.cols);c.getContext('2d').drawImage(atlas,x*c.width,y*c.height,c.width,c.height,0,0,c.width,c.height);const shade=document.createElement('span');shade.className='shade';shade.textContent=it.name+(it.print?' · 인쇄용':'');open.append(c,shade);open.onclick=()=>openPhoto(it);const heart=document.createElement('button');heart.type='button';heart.className='tile-heart'+(state(it).fav?' active':'');heart.textContent=state(it).fav?'♥':'♡';heart.setAttribute('aria-label',it.name+(state(it).fav?' 찜 해제':' 찜하기'));heart.setAttribute('aria-pressed',String(state(it).fav));heart.onclick=()=>{mark(it);if(mode==='selected')renderGallery();else{heart.classList.toggle('active',state(it).fav);heart.textContent=state(it).fav?'♥':'♡';heart.setAttribute('aria-pressed',String(state(it).fav));heart.setAttribute('aria-label',it.name+(state(it).fav?' 찜 해제':' 찜하기'))}};tile.append(open,heart);grid.append(tile)}}
+
+function setupEditorTabs(){
+ const editor=$('editor');
+ const panels=Array.from(editor.querySelectorAll(':scope > .panel'));
+ if(panels.length!==4)throw Error('편집 패널 구조가 예상과 달라요');
+ const area=document.createElement('div');area.className='editor-controls';area.id='editorControls';
+ const tabs=document.createElement('div');tabs.className='editor-tabs';tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','편집 도구');
+ area.append(tabs);
+ const groups=[{id:'tone',label:'☀ 보정',parts:[0,1]},{id:'detail',label:'✦ 고급',parts:[2]},{id:'caption',label:'✎ 자막',parts:[3]}];
+ for(const g of groups){
+   const tab=document.createElement('button');tab.type='button';tab.className='editor-tab';tab.textContent=g.label;tab.id='tab-'+g.id;tab.setAttribute('role','tab');tab.setAttribute('aria-controls','pane-'+g.id);
+   const pane=document.createElement('section');pane.className='editor-tab-panel';pane.id='pane-'+g.id;pane.setAttribute('role','tabpanel');pane.setAttribute('aria-labelledby',tab.id);
+   g.parts.forEach(i=>pane.append(panels[i]));
+   tabs.append(tab);area.append(pane);
+   tab.onclick=()=>selectEditorTab(g.id);
+ }
+ editor.insertBefore(area,editor.querySelector(':scope > .bottom'));
+ selectEditorTab('tone');
+ const header=document.querySelector('header');
+ const setTop=()=>editor.style.setProperty('--editor-top',Math.round(header.getBoundingClientRect().bottom)+'px');
+ setTop();window.addEventListener('resize',setTop);
+}
+function selectEditorTab(id){
+ document.querySelectorAll('#editor .editor-tab').forEach(b=>b.setAttribute('aria-selected',String(b.id==='tab-'+id)));
+ document.querySelectorAll('#editor .editor-tab-panel').forEach(p=>p.classList.toggle('active',p.id==='pane-'+id));
+ const area=$('editorControls');if(area)area.scrollTop=0;
+}
+
 function controlsFromState(){let s=state(current);for(let id of ['bright','contrast','warm','saturation','highlights','shadows','vibrance','fade','vignette','sharpen','portrait']){$(id).value=s[id]??0;$(id+'Val').textContent=Number(s[id]??0)>0?'+'+(s[id]??0):(s[id]??0)}$('caption').value=s.caption;document.querySelectorAll('[data-caption-style]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.captionStyle===s.captionStyle)));$('fontSize').value=s.fontSize;$('fontSizeVal').textContent=s.fontSize+'%';$('textBold').checked=!!s.bold;document.querySelectorAll('[data-font]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.font===s.font)));document.querySelectorAll('[data-color]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.color===s.color)))}
 async function loadCaptionFont(s){try{const family=s.captionStyle==='classic'?'Caveat':(s.font||'Gowun Batang');const weight=s.captionStyle==='classic'?'400':(s.bold?'700':'400');await document.fonts.load(weight+' 30px "'+family+'"',s.caption||'우리의 순간')}catch{}}
 
@@ -236,6 +286,7 @@ $('invite').onclick=async()=>{let link=baseURL()+'#k='+keyText;if(!keyText){toas
 $('retry').onclick=()=>location.reload();
 document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>filter(b.dataset.filter));
 async function init(){screen('gate');keyText=collectKey();if(!keyText){$('gateMsg').textContent='사진을 안전하게 보관하기 위해 초대 링크가 필요해요. 별도 사진 업로드는 없습니다. 처음 받은 초대 링크로 열어주세요.';return}try{cryptoKey=await importKey(keyText);const r=await fetch('assets/manifest.json',{cache:'no-cache'});if(!r.ok)throw Error('사진 서버 준비가 아직 완료되지 않았어요.');manifest=await r.json();if(!manifest.items?.length)throw Error('사진 목록이 비어 있어요.');screen('album');$('loading').textContent='촬영본 미리보기를 준비하고 있어요...';atlas=await imageFromBlob(await decrypt('assets/thumbs.enc'));$('loading').textContent='';summary();renderGallery()}catch(e){screen('gate');$('gateMsg').textContent=e.message+ ' 잠시 후 다시 확인하거나 페이지를 새로고침해 주세요.'}}
+setupEditorTabs();
 init();
 })();
 </script>
