@@ -96,13 +96,26 @@ body:has(#editor:not(.hidden)){overflow:hidden}
 .original-sheet-actions{display:flex;gap:8px;margin-top:14px}
 .original-sheet-actions .btn{flex:1;min-width:0;font-size:12px;padding:12px 6px}
 
+
+.final9-setup{background:#fff;border:1px solid #e4d8d0;border-radius:15px;padding:16px;margin:14px 0;color:var(--ink)}
+.final9-setup-title{font-weight:750;font-size:14px}
+.final9-setup p{font-size:13px;line-height:1.5;color:var(--muted);margin:8px 0}
+.final9-import-btn{display:block;cursor:pointer;text-align:center;padding:13px 14px;border:1px solid #b69c89;background:#f7eee8;color:#764b3b;font-weight:700;border-radius:11px;font-size:13px}
+.final9-setup .final9-tip{font-size:11px;margin:9px 0 0}
+
 </style>
 </head>
 <body>
 <header><div class="wrap top"><span class="brand">OUR MOMENTS · 03</span><button class="icon-btn" id="invite">↗ 링크 공유</button></div></header>
 <main class="main">
 <section id="gate" class="gate hidden"><div><div class="eyebrow">PRIVATE ALBUM</div><h2>우리 둘만의 사진관</h2><p id="gateMsg">초대 링크를 열면 촬영 사진 100장이 자동으로 표시됩니다. 아이폰에서 파일을 선택할 필요가 없어요.</p><button class="btn primary" id="retry">다시 확인</button></div></section>
-<section id="album" class="hidden"><div class="hero"><div class="eyebrow">THE THIRD ANNIVERSARY</div><h1>우리의 사진을 고르는 시간</h1><p class="desc">하트로 마음에 드는 사진을 모아두세요.<br>사진을 누르면 한 장씩 보정·자막 편집 후 저장할 수 있어요.</p></div><div class="counter"><div><small>내가 찜한 사진</small><div><strong id="count">0</strong><small>장 · 개수 제한 없음</small></div></div><span class="hint">♡ 눌러서 찜하기</span></div><nav class="filters" aria-label="사진 분류"><button data-filter="all" aria-pressed="true">전체 100장</button><button data-filter="selected">♥ 찜한 사진</button><button data-filter="prints">인쇄용 4장</button><button data-filter="final9" title="정밀보정본 PNG 업로드 이전에는 기존 촬영본으로 임시 표시합니다">셀렉 9장</button></nav><div id="final9Note" class="notice hidden" role="status">선택한 9장만 모았습니다. <b>현재는 기존 촬영본이 표시되고 있으며, 새 정밀보정 PNG는 아직 반영되지 않았습니다.</b></div><div id="loading" class="status">사진을 불러오는 중...</div><div id="grid" class="grid"></div><div id="empty" class="empty hidden">찜한 사진이 아직 없어요.<br>마음에 드는 사진의 ♡를 눌러보세요.</div></section>
+<section id="album" class="hidden"><div class="hero"><div class="eyebrow">THE THIRD ANNIVERSARY</div><h1>우리의 사진을 고르는 시간</h1><p class="desc">하트로 마음에 드는 사진을 모아두세요.<br>사진을 누르면 한 장씩 보정·자막 편집 후 저장할 수 있어요.</p></div><div class="counter"><div><small>내가 찜한 사진</small><div><strong id="count">0</strong><small>장 · 개수 제한 없음</small></div></div><span class="hint">♡ 눌러서 찜하기</span></div><nav class="filters" aria-label="사진 분류"><button data-filter="all" aria-pressed="true">전체 100장</button><button data-filter="selected">♥ 찜한 사진</button><button data-filter="prints">인쇄용 4장</button><button data-filter="final9">✦ 정밀보정 9장</button></nav><div id="final9Note" class="final9-setup hidden" role="status">
+ <div class="final9-setup-title">✦ 정밀보정 완료한 사진 9장</div>
+ <p id="final9Progress">원본 PNG가 등록되어 있는지 확인하는 중입니다.</p>
+ <label class="final9-import-btn" for="final9Import">+ 9장 원본 PNG 또는 ZIP 가져오기</label>
+ <input id="final9Import" type="file" accept=".zip,application/zip,.png,image/png" multiple hidden>
+ <p class="final9-tip">기기에 한 번 저장하면 이 기기에서는 다시 선택하지 않아도 돼요. 사진은 1365×2048 PNG 그대로 사용하며 JPEG로 변환하지 않아요.</p>
+ </div><div id="loading" class="status">사진을 불러오는 중...</div><div id="grid" class="grid"></div><div id="empty" class="empty hidden">찜한 사진이 아직 없어요.<br>마음에 드는 사진의 ♡를 눌러보세요.</div></section>
 <section id="editor" class="editor hidden"><div class="editor-head"><button class="back" id="back">‹ 사진 목록</button><span class="photo-name" id="photoName"></span></div><div class="preview-wrap"><canvas id="preview"></canvas></div><p class="preview-tip">문구를 손가락으로 움직이면 원하는 곳에 놓을 수 있어요.</p><div class="navigator"><button id="prev">‹ 이전 사진</button><span class="nav-center" id="position"></span><button id="next">다음 사진 ›</button></div><div class="panel"><h3>한 번에 분위기 바꾸기</h3><div class="presets"><button data-preset="original">원본</button><button data-preset="bright">화사하게</button><button data-preset="warm">따뜻하게</button><button data-preset="film">필름 느낌</button><button data-preset="anniv2" title="참고한 2주년 사진의 따뜻하고 차분한 스튜디오 색감">2주년 무드</button></div></div><div class="panel"><h3>기본 보정</h3><div class="control"><span>밝기</span><input id="bright" type="range" min="-40" max="40" value="0"><b id="brightVal">0</b></div><div class="control"><span>대비</span><input id="contrast" type="range" min="-35" max="35" value="0"><b id="contrastVal">0</b></div><div class="control"><span>색온도</span><input id="warm" type="range" min="-35" max="35" value="0"><b id="warmVal">0</b></div><div class="control"><span>채도</span><input id="saturation" type="range" min="-40" max="40" value="0"><b id="saturationVal">0</b></div></div><div class="panel"><h3>고급 보정</h3><div class="subpanel-title">LIGHT</div><div class="control"><span>하이라이트</span><input id="highlights" type="range" min="-45" max="45" value="0"><b id="highlightsVal">0</b></div><div class="control"><span>그림자</span><input id="shadows" type="range" min="-45" max="45" value="0"><b id="shadowsVal">0</b></div><div class="subpanel-title">COLOR & MOOD</div><div class="control"><span>생동감</span><input id="vibrance" type="range" min="-40" max="40" value="0"><b id="vibranceVal">0</b></div><div class="control"><span>페이드</span><input id="fade" type="range" min="0" max="40" value="0"><b id="fadeVal">0</b></div><div class="control"><span>비네트</span><input id="vignette" type="range" min="0" max="45" value="0"><b id="vignetteVal">0</b></div><div class="subpanel-title">DETAIL</div><div class="control"><span>선명도</span><input id="sharpen" type="range" min="0" max="45" value="0"><b id="sharpenVal">0</b></div><div class="control-stack"><div class="control"><span>인물 보정</span><input id="portrait" type="range" min="0" max="100" value="0"><b id="portraitVal">0</b></div><div class="labels"><span>자연스러움</span><strong>⟷</strong><span>인위적임</span></div></div><div class="panel-note">인물 보정은 피부 결을 부드럽게 하고 밝기와 색을 정리해요. 인물 사진일수록 더 자연스럽게 잘 먹습니다.</div></div><div class="panel" id="captionPanel"><h3>사진 위에 남길 자막</h3>
 <div class="caption-presets" role="group" aria-label="자막 스타일 선택">
 <button type="button" class="caption-preset" data-caption-style="standard" aria-pressed="true"><span class="caption-preset-title">기본 자막</span><span class="caption-preset-example">자유로운 글씨체 · 중앙 정렬</span></button>
@@ -137,7 +150,7 @@ body:has(#editor:not(.hidden)){overflow:hidden}
 <script>
 (()=>{'use strict';
 const $=id=>document.getElementById(id), storeName='anniversary-studio-v2', keyStore='anniversary-album-key-v2';
-let keyText='',cryptoKey=null,manifest=null,atlas=null,mode='all',current=null,img=null,rev=0,loadedPack=-1,packBytes=null,renderQueued=false,output=null,outputURL=null,originalBytes=null,originalShareURL=null,originalSheetFile=null;
+let keyText='',cryptoKey=null,manifest=null,atlas=null,mode='all',current=null,img=null,rev=0,loadedPack=-1,packBytes=null,renderQueued=false,output=null,outputURL=null,originalBytes=null,originalShareURL=null,originalSheetFile=null,final9Atlas=null,final9ServerChecked=false;const final9Cache=new Map();
 let edits={};try{edits=JSON.parse(localStorage.getItem(storeName)||'{}')}catch{};
 const defaults=()=>({fav:false,bright:0,contrast:0,warm:0,saturation:0,highlights:0,shadows:0,vibrance:0,fade:0,vignette:0,sharpen:0,portrait:0,caption:'',x:.5,y:.86,color:'white',font:'Gowun Batang',fontSize:5.5,bold:true,captionStyle:'standard'});
 function state(item){let s=edits[item.id]??=(defaults());if(!s.font)s.font='Gowun Batang';if(!Number.isFinite(Number(s.fontSize)))s.fontSize=5.5;if(s.bold===undefined)s.bold=true;if(s.color==='dark')s.color='ink';if(!s.captionStyle)s.captionStyle='standard';return s}
@@ -153,17 +166,183 @@ async function importKey(txt){let b64=txt.replace(/-/g,'+').replace(/_/g,'/');le
 async function getBinary(path){let r=await fetch(path,{cache:'force-cache'});if(!r.ok)throw Error('사진 파일을 가져올 수 없어요 ('+r.status+').');return r.arrayBuffer()}
 async function decrypt(path){const data=new Uint8Array(await getBinary(path));if(data.length<30)throw Error('사진 데이터가 올바르지 않아요.');try{return await crypto.subtle.decrypt({name:'AES-GCM',iv:data.slice(0,12)},cryptoKey,data.slice(12))}catch{throw Error('이 링크로 사진을 열 수 없어요. 올바른 초대 링크인지 확인해주세요.')}}
 async function imageFromBlob(bytes,type='image/jpeg'){const url=URL.createObjectURL(new Blob([bytes],{type}));const picture=new Image();try{picture.src=url;await picture.decode();return picture}finally{URL.revokeObjectURL(url)}}
-function count(){return manifest.items.filter(it=>state(it).fav).length}
+
+function count(){return [...manifest.items,...final9Items].filter(it=>state(it).fav).length}
 function summary(){$('count').textContent=count();document.querySelector('[data-filter="selected"]').textContent='♥ 찜한 사진 '+count()}
-const final9Names=['해봄-30159','해봄-30125','해봄-30121','해봄-30114','해봄-30104','해봄-30103','해봄-30178','해봄-30177','해봄-30161'];
-const final9Set=new Set(final9Names);
+const final9Numbers=['30159','30125','30121','30114','30104','30103','30178','30177','30161'];
+const final9Items=final9Numbers.map((num,i)=>({
+ id:'sel'+String(i).padStart(2,'0'),name:'해봄-'+num+'_정밀보정',
+ edited:true,mime:'image/png',src:'assets/selected9/sel'+String(i).padStart(2,'0')+'.enc',
+ final9Index:i,width:1365,height:2048
+}));
+let final9DBPromise;
+function final9DB(){
+ if(!('indexedDB' in window))return Promise.reject(Error('이 브라우저에서는 사진 보관함을 사용할 수 없어요'));
+ if(!final9DBPromise){
+  final9DBPromise=new Promise((resolve,reject)=>{
+   const req=indexedDB.open('anniversary-studio-final9-png',1);
+   req.onupgradeneeded=()=>req.result.createObjectStore('photos');
+   req.onsuccess=()=>resolve(req.result);
+   req.onerror=()=>reject(req.error);
+  }).catch(e=>{final9DBPromise=null;throw e});
+ }
+ return final9DBPromise;
+}
+async function final9Read(id){
+ if(final9Cache.has(id))return final9Cache.get(id);
+ const db=await final9DB();
+ const saved=await new Promise((resolve,reject)=>{
+  const tx=db.transaction('photos','readonly'),req=tx.objectStore('photos').get(id);
+  req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error);
+ });
+ if(saved)final9Cache.set(id,saved);
+ return saved;
+}
+async function final9Store(id,blob){
+ const db=await final9DB();
+ await new Promise((resolve,reject)=>{
+  const tx=db.transaction('photos','readwrite');
+  tx.objectStore('photos').put(blob,id);
+  tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);
+ });
+ final9Cache.set(id,blob);
+}
+async function final9PhotoBytes(it){
+ const local=await final9Read(it.id).catch(()=>null);
+ if(local)return new Uint8Array(await local.arrayBuffer());
+ return new Uint8Array(await decrypt(it.src));
+}
+async function final9Probe(){
+ if(final9ServerChecked)return;
+ final9ServerChecked=true;
+ try{
+  final9Atlas=await imageFromBlob(await decrypt('assets/selected9/thumbs.enc'),'image/jpeg');
+ }catch{final9Atlas=null}
+}
+function final9Status(){
+ const saved=final9Items.filter(x=>final9Cache.has(x.id)).length;
+ $('final9Progress').textContent=final9Atlas
+  ?'서버에 암호화된 9장이 등록되어 있어요. 사진을 선택해 편집하세요.'
+  :saved
+   ?'이 기기에 '+saved+'/9장 보관 중. 나머지 PNG도 선택해 추가할 수 있어요.'
+   :'새로 보정한 PNG는 아직 서버에서 불러올 수 없어요. 아래에서 9장 파일 또는 ZIP을 한 번 등록하면 이 기기에서 편집할 수 있어요.';
+}
 function list(){
- if(mode==='final9')return final9Names.map(name=>manifest.items.find(x=>x.name===name&&!x.print)).filter(Boolean);
- return manifest.items.filter(x=>mode==='all'?!x.print:mode==='selected'?state(x).fav:x.print)
+ if(mode==='final9')return final9Items;
+ if(mode==='selected')return [...manifest.items,...final9Items].filter(x=>state(x).fav);
+ return manifest.items.filter(x=>mode==='all'?!x.print:x.print);
 }
 function mark(item){const s=state(item);s.fav=!s.fav;persist();summary();return true}
-function filter(v){mode=v;document.querySelectorAll('[data-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.filter===v)));$('final9Note').classList.toggle('hidden',v!=='final9');renderGallery()}
-function renderGallery(){if(!manifest||!atlas)return;const grid=$('grid');grid.replaceChildren();const shown=list();$('empty').classList.toggle('hidden',shown.length>0);for(const it of shown){const tile=document.createElement('div');tile.className='tile';const open=document.createElement('button');open.type='button';open.className='tile-photo';open.setAttribute('aria-label',it.name+' 편집하기');const c=document.createElement('canvas');c.width=manifest.thumb.width;c.height=manifest.thumb.height;const x=Number(it.id)%manifest.thumb.cols,y=Math.floor(Number(it.id)/manifest.thumb.cols);c.getContext('2d').drawImage(atlas,x*c.width,y*c.height,c.width,c.height,0,0,c.width,c.height);const shade=document.createElement('span');shade.className='shade';shade.textContent=it.name+(it.print?' · 인쇄용':'');open.append(c,shade);open.onclick=()=>openPhoto(it);const heart=document.createElement('button');heart.type='button';heart.className='tile-heart'+(state(it).fav?' active':'');heart.textContent=state(it).fav?'♥':'♡';heart.setAttribute('aria-label',it.name+(state(it).fav?' 찜 해제':' 찜하기'));heart.setAttribute('aria-pressed',String(state(it).fav));heart.onclick=()=>{mark(it);if(mode==='selected')renderGallery();else{heart.classList.toggle('active',state(it).fav);heart.textContent=state(it).fav?'♥':'♡';heart.setAttribute('aria-pressed',String(state(it).fav));heart.setAttribute('aria-label',it.name+(state(it).fav?' 찜 해제':' 찜하기'))}};tile.append(open,heart);grid.append(tile)}}
+function filter(v){
+ mode=v;
+ document.querySelectorAll('[data-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.filter===v)));
+ $('final9Note').classList.toggle('hidden',v!=='final9');
+ renderGallery();
+ if(v==='final9')final9Probe().then(()=>{if(mode==='final9'){final9Status();renderGallery()}});
+}
+async function fillFinal9Thumb(c,it,open){
+ try{
+  const ctx=c.getContext('2d');
+  if(final9Atlas){
+   const tw=132,th=198;
+   ctx.drawImage(final9Atlas,(it.final9Index%3)*tw,Math.floor(it.final9Index/3)*th,tw,th,0,0,c.width,c.height);
+   return;
+  }
+  const blob=await final9Read(it.id).catch(()=>null);
+  if(!blob)return;
+  const photo=await imageFromBlob(await blob.arrayBuffer(),'image/png');
+  if(!open.isConnected)return;
+  const scale=Math.max(c.width/photo.width,c.height/photo.height);
+  const sw=c.width/scale,sh=c.height/scale;
+  ctx.drawImage(photo,(photo.width-sw)/2,(photo.height-sh)/2,sw,sh,0,0,c.width,c.height);
+ }catch(e){console.warn('Final9 thumbnail error',e)}
+}
+function renderGallery(){
+ if(!manifest||!atlas)return;
+ const grid=$('grid');grid.replaceChildren();
+ const shown=list();$('empty').classList.toggle('hidden',shown.length>0);
+ for(const it of shown){
+  const tile=document.createElement('div');tile.className='tile';
+  const open=document.createElement('button');open.type='button';open.className='tile-photo';
+  open.setAttribute('aria-label',it.name+' 편집하기');
+  const c=document.createElement('canvas');c.width=manifest.thumb.width;c.height=manifest.thumb.height;
+  const ctx=c.getContext('2d');
+  if(it.edited){
+   ctx.fillStyle='#e6ded7';ctx.fillRect(0,0,c.width,c.height);
+   ctx.fillStyle='#765b50';ctx.font='16px sans-serif';ctx.textAlign='center';ctx.fillText('✦ PNG',c.width/2,c.height/2);
+   fillFinal9Thumb(c,it,open);
+  }else{
+   const x=Number(it.id)%manifest.thumb.cols,y=Math.floor(Number(it.id)/manifest.thumb.cols);
+   ctx.drawImage(atlas,x*c.width,y*c.height,c.width,c.height,0,0,c.width,c.height);
+  }
+  const shade=document.createElement('span');shade.className='shade';
+  shade.textContent=it.name+(it.edited?' · PNG':it.print?' · 인쇄용':'');
+  open.append(c,shade);open.onclick=()=>openPhoto(it);
+  const heart=document.createElement('button');heart.type='button';
+  heart.className='tile-heart'+(state(it).fav?' active':'');
+  heart.textContent=state(it).fav?'♥':'♡';
+  heart.setAttribute('aria-label',it.name+(state(it).fav?' 찜 해제':' 찜하기'));
+  heart.setAttribute('aria-pressed',String(state(it).fav));
+  heart.onclick=()=>{
+   mark(it);
+   if(mode==='selected')renderGallery();
+   else{
+    heart.classList.toggle('active',state(it).fav);
+    heart.textContent=state(it).fav?'♥':'♡';
+    heart.setAttribute('aria-pressed',String(state(it).fav));
+    heart.setAttribute('aria-label',it.name+(state(it).fav?' 찜 해제':' 찜하기'));
+   }
+  };
+  tile.append(open,heart);grid.append(tile);
+ }
+ if(mode==='final9')final9Status();
+}
+async function loadZipParser(){
+ if(window.JSZip)return window.JSZip;
+ await new Promise((resolve,reject)=>{
+  const script=document.createElement('script');
+  script.src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+  script.onload=resolve;script.onerror=()=>reject(Error('ZIP 파일 처리 도구를 불러오지 못했어요. PNG 파일 9장을 직접 선택해 주세요.'));
+  document.head.append(script);
+ });
+ return window.JSZip;
+}
+async function importFinal9Files(files){
+ let inputs=Array.from(files);
+ if(!inputs.length)return;
+ $('final9Progress').textContent='사진을 기기에 보관하는 중...';
+ $('final9Import').disabled=true;
+ try{
+  if(inputs.some(f=>/\.zip$/i.test(f.name))){
+   const JSZip=await loadZipParser();
+   for(const archiveFile of inputs.filter(f=>/\.zip$/i.test(f.name))){
+    const archive=await JSZip.loadAsync(archiveFile);
+    for(const item of Object.values(archive.files)){
+     if(item.dir||!/\.png$/i.test(item.name))continue;
+     const blob=await item.async('blob');
+     inputs.push(new File([blob],item.name.split('/').pop(),{type:'image/png'}));
+    }
+   }
+  }
+  let n=0;
+  for(const f of inputs){
+   if(!/\.png$/i.test(f.name))continue;
+   const it=final9Items.find(x=>f.name.includes(x.name));
+   if(!it)continue;
+   const head=new Uint8Array(await f.slice(0,8).arrayBuffer());
+   if(head.join(',')!=='137,80,78,71,13,10,26,10')throw Error(f.name+'은 PNG 형식이 아니에요.');
+   if(f.size<100000)throw Error(f.name+'의 파일 크기가 예상보다 작아요.');
+   await final9Store(it.id,new Blob([f],{type:'image/png'}));
+   n++;
+   $('final9Progress').textContent=n+'장 보관 완료...';
+  }
+  if(!n){toast('파일 이름이 맞는 정밀보정 PNG를 찾지 못했어요');return}
+  toast(n+'장 저장했어요. 원본 PNG 화질 유지');
+  renderGallery();
+ }catch(e){alert('9장 가져오기 실패: '+e.message)}
+ finally{$('final9Import').disabled=false;$('final9Import').value='';final9Status()}
+}
+$('final9Import').onchange=e=>importFinal9Files(e.target.files);
 
 function setupEditorTabs(){
  const editor=$('editor');
@@ -197,7 +376,52 @@ function selectEditorTab(id){
 function controlsFromState(){let s=state(current);for(let id of ['bright','contrast','warm','saturation','highlights','shadows','vibrance','fade','vignette','sharpen','portrait']){$(id).value=s[id]??0;$(id+'Val').textContent=Number(s[id]??0)>0?'+'+(s[id]??0):(s[id]??0)}$('caption').value=s.caption;document.querySelectorAll('[data-caption-style]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.captionStyle===s.captionStyle)));$('fontSize').value=s.fontSize;$('fontSizeVal').textContent=s.fontSize+'%';$('textBold').checked=!!s.bold;document.querySelectorAll('[data-font]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.font===s.font)));document.querySelectorAll('[data-color]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.color===s.color)));document.querySelectorAll('[data-preset]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.preset===s.tonePreset)))}
 async function loadCaptionFont(s){try{const family=s.captionStyle==='classic'?'Patrick Hand':(s.font||'Gowun Batang');const weight=s.captionStyle==='classic'?'400':(s.bold?'700':'400');await document.fonts.load(weight+' 30px "'+family+'"',s.caption||'우리의 순간')}catch{}}
 
-async function openPhoto(it){let ticket=++rev;current=it;img=null;originalBytes=null;screen('editor');$('saveOriginal').disabled=true;$('photoName').textContent=it.name+(it.print?' · 인쇄용':'');$('position').textContent=it.print?'인쇄용 사진':(Number(it.id)+1)+' / 100';controlsFromState();$('favorite').textContent=state(it).fav?'♥ 찜했어요':'♡ 찜하기';$('favorite').disabled=false;$('make').disabled=true;let c=$('preview');c.width=600;c.height=900;fitPreviewCanvas();c.getContext('2d').fillStyle='#e4ddd3';c.getContext('2d').fillRect(0,0,600,900);try{if(loadedPack!==it.pack){const prefix='p'+String(it.pack).padStart(2,'0');const pieces=await Promise.all(Array.from({length:manifest.parts[it.pack]},(_,j)=>getBinary('assets/'+prefix+'.'+String(j).padStart(2,'0')+'.enc')));const n=pieces.reduce((sum,b)=>sum+b.byteLength,0),cipher=new Uint8Array(n);let at=0;for(const part of pieces){cipher.set(new Uint8Array(part),at);at+=part.byteLength}packBytes=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:cipher.slice(0,12)},cryptoKey,cipher.slice(12)));loadedPack=it.pack}let bytes=packBytes.slice(it.offset,it.offset+it.length);let photo=await imageFromBlob(bytes);if(ticket!==rev)return;img=photo;originalBytes=bytes;$('saveOriginal').disabled=false;$('saveOriginal').title='원본 '+photo.width+' × '+photo.height+'px · '+(bytes.byteLength/1048576).toFixed(2)+'MB · 재압축 없음';let size=Math.min(1,700/photo.width);c.width=Math.round(photo.width*size);c.height=Math.round(photo.height*size);$('make').disabled=false;renderPreview();loadCaptionFont(state(it)).then(()=>{if(ticket===rev)queueRender()})}catch(e){if(ticket===rev){toast('사진 열기 실패');alert(e.message);screen('album')}}}
+
+async function openPhoto(it){
+ const ticket=++rev;
+ current=it;img=null;originalBytes=null;
+ screen('editor');$('saveOriginal').disabled=true;
+ $('photoName').textContent=it.name+(it.edited?' · 정밀보정 PNG':it.print?' · 인쇄용':'');
+ $('position').textContent=it.edited?(it.final9Index+1)+' / 9':it.print?'인쇄용 사진':(Number(it.id)+1)+' / 100';
+ controlsFromState();
+ $('favorite').textContent=state(it).fav?'♥ 찜했어요':'♡ 찜하기';
+ $('favorite').disabled=false;$('make').disabled=true;
+ const c=$('preview');c.width=600;c.height=900;fitPreviewCanvas();
+ c.getContext('2d').fillStyle='#e4ddd3';c.getContext('2d').fillRect(0,0,600,900);
+ try{
+  let bytes;
+  if(it.edited){
+   bytes=await final9PhotoBytes(it);
+  }else{
+   if(loadedPack!==it.pack){
+    const prefix='p'+String(it.pack).padStart(2,'0');
+    const pieces=await Promise.all(Array.from({length:manifest.parts[it.pack]},(_,j)=>getBinary('assets/'+prefix+'.'+String(j).padStart(2,'0')+'.enc')));
+    const n=pieces.reduce((sum,b)=>sum+b.byteLength,0),cipher=new Uint8Array(n);
+    let at=0;for(const part of pieces){cipher.set(new Uint8Array(part),at);at+=part.byteLength}
+    packBytes=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:cipher.slice(0,12)},cryptoKey,cipher.slice(12)));
+    loadedPack=it.pack;
+   }
+   bytes=packBytes.slice(it.offset,it.offset+it.length);
+  }
+  const photo=await imageFromBlob(bytes,it.edited?'image/png':'image/jpeg');
+  if(ticket!==rev)return;
+  img=photo;originalBytes=bytes;
+  $('saveOriginal').disabled=false;
+  $('saveOriginal').title='원본 '+(it.edited?'PNG':'JPG')+' · '+photo.width+' × '+photo.height+'px · '+(bytes.byteLength/1048576).toFixed(2)+'MB · 재압축 없음';
+  const scale=Math.min(1,700/photo.width);
+  c.width=Math.round(photo.width*scale);c.height=Math.round(photo.height*scale);
+  $('make').disabled=false;renderPreview();
+  loadCaptionFont(state(it)).then(()=>{if(ticket===rev)queueRender()});
+ }catch(e){
+  if(ticket!==rev)return;
+  if(it.edited){
+   toast('정밀보정 PNG가 아직 등록되지 않았어요');
+   screen('album');filter('final9');$('final9Import').focus();
+  }else{
+   toast('사진 열기 실패');alert(e.message);screen('album');
+  }
+ }
+}
 function captionLines(ctx,text,limit){
  const lines=[];
  for(const raw of String(text).replace(/\r\n?/g,'\n').split('\n')){
@@ -363,7 +587,7 @@ $('back').onclick=()=>{rev++;loadedPack=-1;packBytes=null;originalBytes=null;clo
 
 function originalFile(){
  if(!current||!originalBytes)throw Error('원본 사진을 아직 불러오지 못했어요.');
- return new File([originalBytes],current.name+'.jpg',{type:'image/jpeg'});
+ return new File([originalBytes],current.name+(current.edited?'.png':'.jpg'),{type:current.edited?'image/png':'image/jpeg'});
 }
 function closeOriginalSheet(){
  $('originalSheet').classList.add('hidden');
@@ -412,7 +636,7 @@ $('originalSheetClose').onclick=closeOriginalSheet;
 $('originalSheet').onclick=e=>{if(e.target===$('originalSheet'))closeOriginalSheet()};
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('originalSheet').classList.contains('hidden'))closeOriginalSheet()});
 
-$('make').onclick=async()=>{if(!img)return;let btn=$('make');btn.disabled=true;let c=document.createElement('canvas');try{await loadCaptionFont(state(current));c.width=img.width;c.height=img.height;draw(c,img,state(current));let blob=await new Promise((resolve,reject)=>c.toBlob(v=>v?resolve(v):reject(Error('사진 생성 실패')),'image/jpeg',.94));output=new File([blob],current.name+'-완성.jpg',{type:'image/jpeg'});if(outputURL)URL.revokeObjectURL(outputURL);outputURL=URL.createObjectURL(blob);$('finished').src=outputURL;shareFailed=false;$('fallback').classList.add('hidden');updateSaveMode();screen('result')}catch(e){alert(e.message)}finally{c.width=c.height=1;btn.disabled=false}};
+$('make').onclick=async()=>{if(!img)return;let btn=$('make');btn.disabled=true;let c=document.createElement('canvas');try{await loadCaptionFont(state(current));c.width=img.width;c.height=img.height;draw(c,img,state(current));const outType=current.edited?'image/png':'image/jpeg';let blob=await new Promise((resolve,reject)=>c.toBlob(v=>v?resolve(v):reject(Error('사진 생성 실패')),outType,current.edited?undefined:.94));output=new File([blob],current.name+'-완성'+(current.edited?'.png':'.jpg'),{type:outType});if(outputURL)URL.revokeObjectURL(outputURL);outputURL=URL.createObjectURL(blob);$('finished').src=outputURL;shareFailed=false;$('fallback').classList.add('hidden');updateSaveMode();screen('result')}catch(e){alert(e.message)}finally{c.width=c.height=1;btn.disabled=false}};
 function backResult(){screen('editor')}$('resultBack').onclick=backResult;$('resultEdit').onclick=backResult;
 let shareFailed=false;
 function updateSaveMode(){const can=!!(!shareFailed&&output&&navigator.canShare?.({files:[output]})&&navigator.share);$('shareGuide').classList.toggle('hidden',!can);$('downloadGuide').classList.toggle('hidden',can);$('sharePhoto').textContent=can?'↗ 공유 메뉴 열기':'↓ 사진 파일 다운로드'}
